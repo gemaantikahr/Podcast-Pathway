@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Podcast Pathway — Product Hub</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600&family=Inter:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --page:#F6F6F2; --card:#FFFFFF; --ink:#1A1F2B; --muted:#5B6472; --faint:#8A93A0;
+    --line:#E5E6E0; --line-soft:#EEEFEA;
+    --guest:#0F8A6A; --guest-tint:#E5F4EF; --guest-ink:#0B5B47;
+    --host:#1F5FD0;  --host-tint:#E7F0FC;  --host-ink:#133F8C;
+    --admin:#5B4BC4; --admin-tint:#ECEAFA; --admin-ink:#3B308A;
+    --setup-bg:#E7E5DC; --setup-fg:#4A4A45;
+    --build-bg:#D8F0E6; --build-fg:#0B5B47;
+    --integ-bg:#E4E1FB; --integ-fg:#3C3489;
+    --qa-bg:#F7E7C9;   --qa-fg:#7A4A0A;
+    --display:'Space Grotesk',sans-serif; --body:'Inter',sans-serif; --mono:'JetBrains Mono',monospace;
+    --lbl:220px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --page:#14161B; --card:#1C1F27; --ink:#E9EAED; --muted:#A2A9B6; --faint:#79808D;
+      --line:#2C303A; --line-soft:#23262E;
+      --guest-tint:#10362C; --guest-ink:#7FD8BE;
+      --host-tint:#14294C; --host-ink:#9BC0F2;
+      --admin-tint:#241E4A; --admin-ink:#B6ABF0;
+      --setup-bg:#43443F; --setup-fg:#D3D1C7;
+      --build-bg:#0B5B47; --build-fg:#9FE1CB;
+      --integ-bg:#3C3489; --integ-fg:#CECBF6;
+      --qa-bg:#5C360A;   --qa-fg:#FAC775;
+    }
+  }
+  * { box-sizing:border-box; }
+  html { -webkit-text-size-adjust:100%; }
+  body { margin:0; background:var(--page); color:var(--ink); font-family:var(--body); line-height:1.55; -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility; }
+  .page { max-width:1120px; margin:0 auto; padding:40px 24px 72px; }
+
+  .eyebrow { font-family:var(--mono); font-size:12px; letter-spacing:0.12em; text-transform:uppercase; color:var(--faint); margin:0 0 10px; }
+  h1 { font-family:var(--display); font-weight:600; font-size:clamp(28px,4.5vw,42px); letter-spacing:-0.02em; margin:0 0 8px; line-height:1.05; }
+  .masthead .lede { color:var(--muted); font-size:15.5px; max-width:64ch; margin:0; }
+
+  .tabs { display:flex; gap:6px; margin:26px 0 30px; border-bottom:1px solid var(--line); }
+  .tab { font-family:var(--display); font-weight:500; font-size:15px; color:var(--muted); background:none; border:0; border-bottom:2px solid transparent; padding:11px 16px; cursor:pointer; margin-bottom:-1px; transition:color .15s, border-color .15s; }
+  .tab:hover { color:var(--ink); }
+  .tab.active { color:var(--ink); border-bottom-color:var(--host); }
+  .tab:focus-visible { outline:2px solid var(--host); outline-offset:2px; border-radius:6px 6px 0 0; }
+
+  .panel { display:none; }
+  .panel.active { display:block; animation:fade .25s ease; }
+  @keyframes fade { from { opacity:0; transform:translateY(4px); } to { opacity:1; transform:none; } }
+
+  .sec-head { margin-bottom:20px; }
+  .sec-head h2 { font-family:var(--display); font-weight:600; font-size:22px; letter-spacing:-0.01em; margin:0 0 6px; }
+  .sec-head p { color:var(--muted); font-size:14.5px; max-width:66ch; margin:0; }
+
+  /* ---------- Roles & features ---------- */
+  .rf-toolbar { display:flex; flex-wrap:wrap; align-items:center; gap:16px 22px; margin:0 0 22px; padding:14px 0; border-top:1px solid var(--line); border-bottom:1px solid var(--line); }
+  .rf-legend { display:flex; flex-wrap:wrap; gap:14px; font-size:13px; color:var(--muted); }
+  .rf-legend .k { display:inline-flex; align-items:center; gap:7px; }
+  .swatch { width:10px; height:10px; border-radius:3px; }
+  .expand-all { font-family:var(--mono); font-size:12px; color:var(--muted); background:none; border:1px solid var(--line); border-radius:7px; padding:7px 12px; cursor:pointer; margin-left:auto; transition:border-color .15s,color .15s; }
+  .expand-all:hover { border-color:var(--faint); color:var(--ink); }
+
+  .board { display:grid; grid-template-columns:repeat(3,1fr); gap:20px; align-items:start; }
+  @media (max-width:860px){ .board { grid-template-columns:1fr; } }
+  .col { background:var(--card); border:1px solid var(--line); border-radius:14px; overflow:hidden; }
+  .col-head { display:flex; align-items:center; gap:12px; padding:16px 18px; border-bottom:1px solid var(--line-soft); }
+  .badge { width:34px; height:34px; border-radius:9px; flex-shrink:0; display:grid; place-items:center; font-family:var(--display); font-weight:600; font-size:15px; }
+  .col-title { font-family:var(--display); font-weight:600; font-size:17px; line-height:1.1; }
+  .col-access { font-family:var(--mono); font-size:11px; color:var(--faint); margin-top:3px; }
+  .col-count { margin-left:auto; font-family:var(--mono); font-size:12px; color:var(--faint); }
+  .feat { border-bottom:1px solid var(--line-soft); }
+  .feat:last-child { border-bottom:0; }
+  .feat-btn { width:100%; text-align:left; background:none; border:0; cursor:pointer; padding:13px 18px; display:flex; align-items:flex-start; gap:11px; font-family:var(--body); color:var(--ink); transition:background .12s; }
+  .feat-btn:hover { background:var(--line-soft); }
+  .feat-btn:focus-visible { outline:2px solid var(--host); outline-offset:-2px; }
+  .fr { font-family:var(--mono); font-size:10.5px; padding:2px 6px; border-radius:5px; flex-shrink:0; margin-top:1px; font-weight:500; }
+  .feat-name { flex:1; font-size:14px; font-weight:500; line-height:1.35; }
+  .shared-tag { font-family:var(--mono); font-size:9.5px; text-transform:uppercase; letter-spacing:0.06em; color:var(--faint); border:1px solid var(--line); border-radius:4px; padding:1px 5px; margin-left:6px; white-space:nowrap; }
+  .chev { flex-shrink:0; width:16px; height:16px; margin-top:2px; color:var(--faint); transition:transform .22s ease; }
+  .feat.open .chev { transform:rotate(90deg); }
+  .detail { display:grid; grid-template-rows:0fr; transition:grid-template-rows .24s ease; }
+  .feat.open .detail { grid-template-rows:1fr; }
+  .detail-inner { overflow:hidden; }
+  .detail-body { padding:2px 18px 16px 41px; }
+  .detail-desc { font-size:13.5px; color:var(--muted); margin:0 0 12px; }
+  .includes-label { font-family:var(--mono); font-size:10px; text-transform:uppercase; letter-spacing:0.1em; color:var(--faint); margin:0 0 7px; }
+  ul.includes { list-style:none; margin:0 0 4px; padding:0; display:flex; flex-wrap:wrap; gap:6px; }
+  ul.includes li { font-size:12px; padding:4px 9px; border-radius:6px; color:var(--ink); background:var(--line-soft); border:1px solid var(--line); }
+  .meta { margin-top:12px; display:flex; flex-wrap:wrap; gap:8px; }
+  .meta .pill { font-family:var(--mono); font-size:10.5px; padding:3px 8px; border-radius:6px; border:1px solid var(--line); color:var(--muted); }
+  .rf-foot { margin-top:26px; font-size:12.5px; color:var(--faint); font-family:var(--mono); display:flex; flex-wrap:wrap; gap:6px 16px; }
+
+  /* ---------- Timeline ---------- */
+  .scope { display:flex; flex-wrap:wrap; gap:8px; margin:0 0 24px; }
+  .scope .tag { font-family:var(--mono); font-size:11.5px; padding:5px 10px; border-radius:7px; border:1px solid var(--line); color:var(--muted); }
+  .scope .tag.out { text-decoration:line-through; opacity:0.7; }
+  .tl-board { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:20px 22px 22px; overflow-x:auto; }
+  .grid-min { min-width:720px; }
+  .tl-head { display:grid; grid-template-columns:var(--lbl) repeat(6,1fr); align-items:end; }
+  .tl-head .wk { text-align:center; padding:0 4px 8px; }
+  .tl-head .wk b { display:block; font-family:var(--display); font-weight:600; font-size:14px; }
+  .tl-head .wk span { font-size:11px; color:var(--faint); }
+  .mrow { display:grid; grid-template-columns:var(--lbl) repeat(6,1fr); margin:2px 0 8px; height:20px; }
+  .mflag { justify-self:end; transform:translateX(50%); display:flex; align-items:center; gap:5px; }
+  .mflag .dia { width:9px; height:9px; background:var(--ink); transform:rotate(45deg); }
+  .mflag span { font-family:var(--mono); font-size:11px; color:var(--muted); }
+  .tl-body { position:relative; }
+  .lines { position:absolute; inset:0 0 0 var(--lbl); display:grid; grid-template-columns:repeat(6,1fr); pointer-events:none; z-index:0; }
+  .lines i { border-left:1px solid var(--line-soft); }
+  .lines i:first-child { border-left:0; }
+  .row { position:relative; z-index:1; display:grid; grid-template-columns:var(--lbl) repeat(6,1fr); align-items:center; height:36px; }
+  .rlabel { font-size:13px; padding-right:14px; line-height:1.2; }
+  .bar { height:24px; border-radius:6px; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:500; }
+  .b-setup { background:var(--setup-bg); color:var(--setup-fg); }
+  .b-build { background:var(--build-bg); color:var(--build-fg); }
+  .b-integ { background:var(--integ-bg); color:var(--integ-fg); }
+  .b-qa    { background:var(--qa-bg);    color:var(--qa-fg); }
+  .tl-legend { display:flex; flex-wrap:wrap; gap:16px; margin-top:20px; font-size:12.5px; color:var(--muted); }
+  .tl-legend .k { display:inline-flex; align-items:center; gap:7px; }
+  .tl-legend .sw { width:12px; height:12px; border-radius:3px; }
+  .tl-legend .dia { width:9px; height:9px; background:var(--ink); transform:rotate(45deg); }
+  .miles { display:grid; grid-template-columns:repeat(auto-fit,minmax(210px,1fr)); gap:12px; margin-top:24px; }
+  .mile { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:14px 16px; }
+  .mile .id { font-family:var(--mono); font-size:11px; color:var(--faint); }
+  .mile .wk { font-family:var(--display); font-weight:600; font-size:15px; margin:2px 0 6px; }
+  .mile p { font-size:12.5px; color:var(--muted); margin:0; line-height:1.45; }
+  .tl-foot { margin-top:24px; font-family:var(--mono); font-size:12px; color:var(--faint); display:flex; flex-wrap:wrap; gap:6px 14px; }
+
+  .pv { margin:2px 0 14px; }
+  .pv-stats { display:grid; grid-template-columns:repeat(auto-fit,minmax(120px,1fr)); gap:8px; }
+  .pv-stat { background:var(--line-soft); border-radius:9px; padding:9px 11px; }
+  .pv-stat .n { font-family:var(--display); font-weight:600; font-size:18px; line-height:1.1; }
+  .pv-stat .l { font-size:10.5px; color:var(--muted); margin-top:2px; }
+  .pv-field { margin-bottom:9px; }
+  .pv-label2 { display:block; font-family:var(--mono); font-size:10px; text-transform:uppercase; letter-spacing:.08em; color:var(--faint); margin-bottom:4px; }
+  .pv-input { font-size:12.5px; color:var(--ink); background:var(--card); border:1px solid var(--line); border-radius:8px; padding:8px 10px; line-height:1.35; }
+  .pv-input.ph { color:var(--faint); }
+  .pv-input.pv-select { display:flex; justify-content:space-between; align-items:center; gap:8px; }
+  .pv-input.pv-textarea { min-height:46px; }
+  .pv-caret { color:var(--faint); font-size:11px; }
+  .pv-cta { display:inline-block; margin-top:2px; font-size:12px; font-weight:500; padding:8px 14px; border-radius:8px; }
+  .pv-row { display:flex; align-items:center; justify-content:space-between; gap:10px; padding:9px 0; border-bottom:1px solid var(--line-soft); }
+  .pv-row:last-child { border-bottom:0; }
+  .pv-row-main { min-width:0; }
+  .pv-row-t { font-size:12.5px; font-weight:500; }
+  .pv-row-s { font-size:11.5px; color:var(--muted); margin-top:1px; }
+  .pv-actions { display:flex; flex-wrap:wrap; gap:6px; padding:2px 0 8px; }
+  .pv-mini { font-size:11px; padding:4px 10px; border:1px solid var(--line); border-radius:7px; color:var(--muted); }
+  .st { font-family:var(--mono); font-size:10px; padding:2px 8px; border-radius:20px; white-space:nowrap; flex-shrink:0; }
+  .st-green{ background:#EAF3DE; color:#3B6D11; } .st-amber{ background:#FAEEDA; color:#854F0B; }
+  .st-red{ background:#FCEBEB; color:#A32D2D; } .st-blue{ background:#E6F1FB; color:#185FA5; }
+  .st-gray{ background:#F1EFE8; color:#5F5E5A; }
+  .pv-card { display:flex; align-items:center; justify-content:space-between; gap:10px; border:1px solid var(--line); border-radius:9px; padding:9px 11px; margin-bottom:7px; }
+  .pv-card:last-child { margin-bottom:0; }
+  .pv-match { font-family:var(--mono); font-size:10.5px; padding:3px 9px; border-radius:20px; background:#EAF3DE; color:#3B6D11; white-space:nowrap; flex-shrink:0; }
+  .pv-search { display:flex; align-items:center; gap:8px; border:1px solid var(--line); border-radius:8px; padding:8px 10px; margin-bottom:9px; color:var(--faint); font-size:12.5px; }
+  .pv-chat { display:flex; flex-direction:column; gap:6px; margin-bottom:9px; }
+  .bub { max-width:82%; padding:7px 11px; border-radius:13px; font-size:12.5px; line-height:1.35; }
+  .bub.them { background:var(--line-soft); align-self:flex-start; border-bottom-left-radius:4px; }
+  .bub.me { align-self:flex-end; border-bottom-right-radius:4px; }
+  .pv-chatinput { display:flex; align-items:center; gap:8px; }
+  .pv-chatinput .pv-input { flex:1; }
+  .pv-send { width:32px; height:32px; border-radius:8px; display:grid; place-items:center; flex-shrink:0; font-size:15px; }
+  .pv-ag { display:flex; gap:11px; align-items:center; padding:8px 0; border-bottom:1px solid var(--line-soft); }
+  .pv-ag:last-child { border-bottom:0; }
+  .pv-ag-date { width:40px; text-align:center; background:var(--line-soft); border-radius:8px; padding:5px 0; flex-shrink:0; }
+  .pv-ag-day { font-family:var(--display); font-weight:600; font-size:15px; line-height:1; }
+  .pv-ag-mon { font-size:9.5px; color:var(--muted); text-transform:uppercase; letter-spacing:.05em; }
+  .pv-notif { display:flex; align-items:center; gap:10px; padding:7px 0; border-bottom:1px solid var(--line-soft); }
+  .pv-notif:last-child { border-bottom:0; }
+  .pv-notif-ic { width:26px; height:26px; border-radius:7px; display:grid; place-items:center; font-size:14px; flex-shrink:0; }
+  .pv-notif-m { flex:1; font-size:12px; }
+  .pv-notif-t { font-size:10.5px; color:var(--faint); font-family:var(--mono); }
+  .pv-chips { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:9px; }
+  .pv-chip { font-size:11.5px; padding:4px 10px; border-radius:20px; border:1px solid var(--line); color:var(--muted); }
+  .pv-result { font-size:12px; color:var(--ink); display:flex; align-items:center; gap:6px; }
+  .pv-result svg { color:var(--guest); }
+  .pv-plan { border:1px solid var(--line); border-radius:11px; padding:12px 14px; }
+  .pv-plan-top { display:flex; align-items:center; justify-content:space-between; margin-bottom:5px; }
+  .pv-plan-name { font-family:var(--display); font-weight:600; font-size:14px; }
+  .pv-plan-price { font-size:13px; margin-bottom:2px; }
+  .pv-bar { display:flex; align-items:center; gap:10px; margin-bottom:8px; }
+  .pv-bar:last-child { margin-bottom:0; }
+  .pv-bar-l { font-size:11.5px; color:var(--muted); width:92px; flex-shrink:0; }
+  .pv-bar-track { flex:1; height:8px; background:var(--line-soft); border-radius:6px; overflow:hidden; }
+  .pv-bar-fill { height:100%; border-radius:6px; }
+  .pv-bar-v { font-family:var(--mono); font-size:11px; width:44px; text-align:right; flex-shrink:0; }
+  @media (prefers-color-scheme: dark) {
+    .st-green{ background:#27500A; color:#C0DD97; } .st-amber{ background:#5C360A; color:#FAC775; }
+    .st-red{ background:#791F1F; color:#F7C1C1; } .st-blue{ background:#0C447C; color:#B5D4F4; }
+    .st-gray{ background:#43443F; color:#D3D1C7; }
+    .pv-match{ background:#27500A; color:#C0DD97; }
+  }
+  @media (prefers-reduced-motion: reduce) { .detail,.chev,.feat-btn,.expand-all,.panel { transition:none; animation:none; } }
+</style>
+</head>
+<body>
+<div class="page">
+  <header class="masthead">
+    <p class="eyebrow">Podcast Pathway · Product hub</p>
+    <h1>Podcast Pathway</h1>
+    <p class="lede">A two-sided marketplace connecting podcast hosts with guests. This hub holds the role-by-feature breakdown and the six-week delivery plan in one place.</p>
+  </header>
+
+  <nav class="tabs" role="tablist" aria-label="Sections">
+    <button class="tab active" role="tab" aria-selected="true" aria-controls="panel-roles" id="tab-roles" data-target="panel-roles">Roles &amp; features</button>
+    <button class="tab" role="tab" aria-selected="false" aria-controls="panel-timeline" id="tab-timeline" data-target="panel-timeline">6-week timeline</button>
+  </nav>
+
+  <!-- ROLES & FEATURES -->
+  <section class="panel active" id="panel-roles" role="tabpanel" aria-labelledby="tab-roles">
+    <div class="sec-head">
+      <h2>Roles &amp; features</h2>
+      <p>Every capability, grouped by role. Select any feature to see what it includes. Codes reference the functional requirement IDs (FR-*) in the PRD.</p>
+    </div>
+    <div class="rf-toolbar">
+      <div class="rf-legend">
+        <span class="k"><span class="swatch" style="background:var(--guest)"></span> Guest</span>
+        <span class="k"><span class="swatch" style="background:var(--host)"></span> Host</span>
+        <span class="k"><span class="swatch" style="background:var(--admin)"></span> Administrator</span>
+        <span class="k"><span class="shared-tag" style="margin:0">shared</span> Host &amp; Guest</span>
+      </div>
+      <button class="expand-all" id="toggleAll" aria-label="Expand or collapse all features">Expand all</button>
+    </div>
+    <div class="board" id="board"></div>
+    <div class="rf-foot">
+      <span>Source: Developer Guideline · PRD v1.0</span><span>·</span>
+      <span>Guest &amp; Host = web + native mobile</span><span>·</span>
+      <span>Admin = web portal only</span>
+    </div>
+  </section>
+
+  <!-- TIMELINE -->
+  <section class="panel" id="panel-timeline" role="tabpanel" aria-labelledby="tab-timeline">
+    <div class="sec-head">
+      <h2>6-week timeline — web MVP</h2>
+      <p>Paced to be genuinely achievable in six weeks with roughly four developers plus dedicated QA. The two riskiest pieces are de-risked deliberately: Stripe billing starts early and runs as a parallel track, and QA runs continuously rather than only at the end. Scope is the web app across all three portals; native mobile and Phase 2 items are a fast-follow, not in-window.</p>
+    </div>
+    <div class="scope">
+      <span class="tag">Web MVP · all portals</span>
+      <span class="tag">Stripe memberships</span>
+      <span class="tag">Rule-based matching</span>
+      <span class="tag out">Native mobile apps</span>
+      <span class="tag out">Full training LMS</span>
+      <span class="tag out">Calendar sync</span>
+      <span class="tag out">Booking fees · featured listings</span>
+    </div>
+
+    <div class="tl-board">
+     <div class="grid-min">
+      <div class="tl-head">
+        <div></div>
+        <div class="wk"><b>Week 1</b><span>Setup</span></div>
+        <div class="wk"><b>Week 2</b><span>Foundations</span></div>
+        <div class="wk"><b>Week 3</b><span>Build</span></div>
+        <div class="wk"><b>Week 4</b><span>Integrate</span></div>
+        <div class="wk"><b>Week 5</b><span>Assemble</span></div>
+        <div class="wk"><b>Week 6</b><span>Harden</span></div>
+      </div>
+      <div class="mrow">
+        <div></div>
+        <div class="mflag" style="grid-column:3/4;"><span>M1</span><div class="dia"></div></div>
+        <div class="mflag" style="grid-column:5/6;"><span>M2</span><div class="dia"></div></div>
+        <div class="mflag" style="grid-column:6/7;"><span>M3</span><div class="dia"></div></div>
+        <div class="mflag" style="grid-column:7/8;"><span>M4</span><div class="dia"></div></div>
+      </div>
+      <div class="tl-body">
+        <div class="lines" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></div>
+        <div class="row"><div class="rlabel">Foundations &amp; DevOps</div><div class="bar b-setup" style="grid-column:2/3;">1 wk</div></div>
+        <div class="row"><div class="rlabel">Design system &amp; authentication</div><div class="bar b-setup" style="grid-column:2/4;">2 wks</div></div>
+        <div class="row"><div class="rlabel">Public website &amp; CMS front-end</div><div class="bar b-build" style="grid-column:3/4;">1 wk</div></div>
+        <div class="row"><div class="rlabel">Guest &amp; Host profiles</div><div class="bar b-build" style="grid-column:3/5;">2 wks</div></div>
+        <div class="row"><div class="rlabel">Opportunities &amp; applications</div><div class="bar b-build" style="grid-column:4/6;">2 wks</div></div>
+        <div class="row"><div class="rlabel">Guest directory &amp; invitations</div><div class="bar b-build" style="grid-column:5/6;">1 wk</div></div>
+        <div class="row"><div class="rlabel">Membership &amp; payments (Stripe)</div><div class="bar b-integ" style="grid-column:3/6;">3 wks · early start</div></div>
+        <div class="row"><div class="rlabel">Matching engine (rule-based)</div><div class="bar b-integ" style="grid-column:5/7;">2 wks</div></div>
+        <div class="row"><div class="rlabel">Messaging &amp; notifications</div><div class="bar b-build" style="grid-column:6/7;">1 wk</div></div>
+        <div class="row"><div class="rlabel">Calendar (scheduling)</div><div class="bar b-build" style="grid-column:6/7;">1 wk</div></div>
+        <div class="row"><div class="rlabel">Admin portal (parallel track)</div><div class="bar b-build" style="grid-column:5/7;">2 wks</div></div>
+        <div class="row"><div class="rlabel">QA: browser, performance, security, SEO</div><div class="bar b-qa" style="grid-column:5/8;">continuous</div></div>
+        <div class="row"><div class="rlabel">UAT, fixes &amp; launch</div><div class="bar b-qa" style="grid-column:7/8;">1 wk</div></div>
+      </div>
+      <div class="tl-legend">
+        <span class="k"><span class="sw" style="background:var(--setup-bg);"></span>Setup</span>
+        <span class="k"><span class="sw" style="background:var(--build-bg);"></span>Build</span>
+        <span class="k"><span class="sw" style="background:var(--integ-bg);"></span>Integration</span>
+        <span class="k"><span class="sw" style="background:var(--qa-bg);"></span>QA &amp; launch</span>
+        <span class="k"><span class="dia"></span>Milestone</span>
+      </div>
+     </div>
+    </div>
+
+    <div class="miles">
+      <div class="mile"><div class="id">M1 · end of Week 2</div><div class="wk">Foundations ready</div><p>Auth, roles, public site, and CMS on staging. Stripe integration already underway.</p></div>
+      <div class="mile"><div class="id">M2 · end of Week 4</div><div class="wk">Marketplace + payments</div><p>Both paths — opportunities/applications and directory/invitations — live, and Stripe memberships working.</p></div>
+      <div class="mile"><div class="id">M3 · end of Week 5</div><div class="wk">Feature freeze</div><p>Matching, messaging, notifications, calendar, and admin portal done. Fixes only from here.</p></div>
+      <div class="mile"><div class="id">M4 · end of Week 6</div><div class="wk">Launch</div><p>Continuous QA wraps with security scan, SEO audit, UAT, and bug-fix.</p></div>
+    </div>
+    <div class="tl-foot">
+      <span>Realistic with ~4 developers in parallel + dedicated QA</span><span>·</span>
+      <span>If it slips, cut in order: calendar → match % → deeper admin reports</span>
+    </div>
+  </section>
+</div>
+
+<script>
+const DATA = {
+  guest: { title:"Guest", access:"Web + Mobile", accent:"guest", features:[
+    { id:"GST-01", name:"Dashboard & recent activity", shared:false, desc:"At-a-glance snapshot of the guest's marketplace status and latest events.", includes:["Profile completion","Suggested matches","Available opportunities","Submitted applications","Invitations received","Unread messages","Recent activity"] },
+    { id:"GST-02", name:"Professional profile & expertise", shared:false, desc:"The public-facing profile that drives discovery and trust.", includes:["Photo, name, headline, biography","Industry & expertise categories","Experience level","Areas of expertise","Website & social links","Availability toggles"] },
+    { id:"GST-03", name:"Matching preferences", shared:false, desc:"Preferences that power suggested hosts and opportunities with a match percentage.", includes:["Podcast categories","Industry interests","Collaboration types","Preferred audience size","Preferred topics","Match results with %"] },
+    { id:"GST-04", name:"Browse & apply to opportunities", shared:false, desc:"The opportunity marketplace where guests find and apply to relevant appearances.", includes:["Search opportunities","Filter opportunities","Save opportunities","Detail + host info","Apply action"] },
+    { id:"GST-05", name:"Application management", shared:false, desc:"Track every application through its lifecycle.", includes:["Submitted","Under review","Shortlisted","Accepted","Rejected","View / withdraw"] },
+    { id:"GST-06", name:"Respond to invitations", shared:false, desc:"Handle direct invitations sent by hosts.", includes:["View invitation","Accept","Decline","Status tracking"] },
+    { id:"GST-07", name:"Messaging", shared:true, desc:"In-platform conversations with hosts.", includes:["Inbox & conversation list","Unread counter","Send / receive messages","Message history"] },
+    { id:"GST-08", name:"Calendar", shared:true, desc:"Scheduled sessions and confirmed collaborations.", includes:["Upcoming sessions","Confirmed collaborations"], phase:"Google / Outlook sync — Phase 2" },
+    { id:"GST-09", name:"Notifications", shared:true, desc:"Alerts that keep the guest informed.", includes:["New message","New invitation","Invitation accepted","Application updates","Match recommendations"] },
+  ]},
+  host: { title:"Host", access:"Web + Mobile", accent:"host", features:[
+    { id:"HST-01", name:"Dashboard & recent activity", shared:false, desc:"Overview of membership, marketplace activity, and latest events.", includes:["Membership status","Active opportunities","Applications received","Invitations sent","Suggested guests","Unread messages"] },
+    { id:"HST-02", name:"Podcast profile & branding", shared:false, desc:"The podcast's identity that guests see.", includes:["Podcast name & description","Category","Website","Logo & cover image","Social links"] },
+    { id:"HST-03", name:"Guest directory & search", shared:false, desc:"Direct discovery — find and reach suitable guests.", includes:["Search by keyword / industry / expertise","Listings with match %","View profile","Save","Invite","Message"] },
+    { id:"HST-04", name:"Create & manage opportunities", shared:false, desc:"Post and manage opportunities through their full lifecycle.", includes:["Title & description","Required expertise","Recording format","Recording date","Deadline","Draft → Published → Closed → Archived"] },
+    { id:"HST-05", name:"Review applications", shared:false, desc:"Evaluate applicants and move them through the pipeline.", includes:["View applicants","Review profiles","Accept","Reject","Shortlist","Status tracking"] },
+    { id:"HST-06", name:"Send invitations", shared:false, desc:"Invite specific guests directly from the directory.", includes:["Select guest","Invitation message","Track pending / accepted / declined","Cancel"] },
+    { id:"HST-07", name:"Membership management", shared:false, desc:"Manage the paid membership that gates premium host features.", includes:["Current plan","Expiry date","Subscription status","Renew","Upgrade"], phase:"Billing via Stripe" },
+    { id:"HST-08", name:"Messaging", shared:true, desc:"In-platform conversations with guests.", includes:["Inbox & conversation list","Unread counter","Send / receive messages","Message history"] },
+    { id:"HST-09", name:"Calendar", shared:true, desc:"Scheduled recordings and accepted collaborations.", includes:["Upcoming recordings","Accepted collaborations"], phase:"Google / Outlook sync — Phase 2" },
+    { id:"HST-10", name:"Notifications", shared:true, desc:"Alerts for applications, invitations, and membership.", includes:["New application","Invitation accepted","New message","Membership expiry reminder"] },
+  ]},
+  admin: { title:"Administrator", access:"Admin portal", accent:"admin", features:[
+    { id:"ADM-01", name:"Platform dashboard", shared:false, desc:"Whole-platform health and activity at a glance.", includes:["Total users / hosts / guests","Active memberships","Total opportunities","Applications & invitations","Total messages","Recent activity"] },
+    { id:"ADM-02", name:"User management", shared:false, desc:"Manage every account across the three roles.", includes:["View / edit guests & hosts","Suspend / activate","Delete","Create administrators","Assign permissions"] },
+    { id:"ADM-03", name:"Membership & plan control", shared:false, desc:"Define the plans and oversee subscriptions.", includes:["Create / edit / disable plans","Name, price, duration, features","View subscriptions","Manage / cancel / renew"] },
+    { id:"ADM-04", name:"Opportunity oversight", shared:false, desc:"Moderate marketplace content.", includes:["View","Edit","Remove","Archive","Manage applications"] },
+    { id:"ADM-05", name:"CMS & content pages", shared:false, desc:"Edit public site content without a deploy.", includes:["Homepage sections","How It Works","Pricing","About","FAQ","Terms & Privacy","Contact"] },
+    { id:"ADM-06", name:"Notification management", shared:false, desc:"Create and broadcast platform communications.", includes:["Create / send / schedule notifications","Email templates","Broadcast emails"] },
+    { id:"ADM-07", name:"Reports & analytics", shared:false, desc:"Track growth, revenue, activity, and engagement.", includes:["User growth","Memberships & revenue","Opportunities & applications","Matches generated","Engagement"] },
+  ]}
+};
+
+function el(t,c,h){ const e=document.createElement(t); if(c)e.className=c; if(h!==undefined)e.innerHTML=h; return e; }
+const PREVIEWS = {
+  "GST-01": { type:"stats", items:[{value:"80%",label:"Profile complete"},{value:"12",label:"Suggested matches"},{value:"34",label:"Open opportunities"},{value:"5",label:"Applications"}] },
+  "GST-02": { type:"form", fields:[{label:"Full name",value:"Maya Rodriguez"},{label:"Headline",value:"Behavioural economist and author"},{label:"Industry",type:"select",value:"Business and Finance"},{label:"Experience level",type:"select",value:"Expert"},{label:"Bio",type:"textarea",value:"Ten years researching decision-making, with two bestselling books on habit change."}], cta:"Save profile" },
+  "GST-03": { type:"prefs", chips:[{label:"Business",on:true},{label:"Technology",on:true},{label:"Health",on:false},{label:"Interviews",on:true},{label:"Solo shows",on:false}], result:"92% match to 3 hosts this week" },
+  "GST-04": { type:"cards", search:"Search opportunities", items:[{title:"The Growth Mindset Show",sub:"Business · 45 min · remote",match:94},{title:"Founder Stories",sub:"Startups · weekly",match:88}] },
+  "GST-05": { type:"list", items:[{title:"The Growth Mindset Show",sub:"Applied 2 days ago",status:"Shortlisted",tone:"blue"},{title:"Founder Stories",sub:"Applied 5 days ago",status:"Under review",tone:"amber"},{title:"Deep Work Daily",sub:"Applied 1 week ago",status:"Accepted",tone:"green"}] },
+  "GST-06": { type:"list", items:[{title:"Invitation from Founder Stories",sub:"We would love to have you discuss behavioural design.",actions:["Accept","Decline"]}] },
+  "GST-07": { type:"chat", messages:[{from:"them",text:"Hi Maya! Loved your book — want to come on the show?"},{from:"me",text:"Absolutely, thanks for reaching out!"},{from:"them",text:"Great — does Thursday work?"}] },
+  "GST-08": { type:"agenda", items:[{day:"14",mon:"Jul",title:"The Growth Mindset Show",sub:"3:00 PM · Remote"},{day:"18",mon:"Jul",title:"Founder Stories",sub:"11:00 AM · Remote"}] },
+  "GST-09": { type:"notifs", items:[{icon:"mail",text:"New message from Founder Stories",time:"2m"},{icon:"check",text:"Your application was shortlisted",time:"1h"},{icon:"sparkles",text:"3 new opportunities match your profile",time:"4h"}] },
+
+  "HST-01": { type:"stats", items:[{value:"Active",label:"Membership"},{value:"3",label:"Open opportunities"},{value:"18",label:"Applications"},{value:"7",label:"Invitations sent"}] },
+  "HST-02": { type:"form", fields:[{label:"Podcast name",value:"The Growth Mindset Show"},{label:"Category",type:"select",value:"Business and Finance"},{label:"Website",value:"growthmindset.fm"},{label:"Description",type:"textarea",value:"Weekly conversations with founders and researchers on how people grow."}], cta:"Save podcast" },
+  "HST-03": { type:"cards", search:"Search guests by expertise", items:[{title:"Maya Rodriguez",sub:"Behavioural economist · Expert",match:94},{title:"Daniel Osei",sub:"Startup founder · Advanced",match:87}] },
+  "HST-04": { type:"form", fields:[{label:"Title",value:"Guest expert on decision-making"},{label:"Required expertise",value:"Behavioural science"},{label:"Format",type:"select",value:"Remote · 45 min"},{label:"Recording date",type:"select",value:"18 Jul 2026"},{label:"Application deadline",type:"select",value:"12 Jul 2026"}], cta:"Publish opportunity" },
+  "HST-05": { type:"list", items:[{title:"Maya Rodriguez",sub:"Behavioural economist",status:"New",tone:"blue",actions:["Shortlist","Accept","Reject"]},{title:"Daniel Osei",sub:"Startup founder",status:"Shortlisted",tone:"blue"}] },
+  "HST-06": { type:"form", fields:[{label:"To",value:"Maya Rodriguez"},{label:"Message",type:"textarea",value:"Hi Maya, we would love to have you on The Growth Mindset Show to discuss decision-making."}], cta:"Send invitation" },
+  "HST-07": { type:"plan", name:"Pro membership", status:"Active", price:"$29 / month", expiry:"Renews 14 Aug 2026", actions:["Renew","Upgrade"] },
+  "HST-08": { type:"chat", messages:[{from:"me",text:"Hi Maya! Loved your book — want to come on the show?"},{from:"them",text:"Absolutely, thanks for reaching out!"},{from:"me",text:"Great — does Thursday work?"}] },
+  "HST-09": { type:"agenda", items:[{day:"18",mon:"Jul",title:"Recording · Maya Rodriguez",sub:"11:00 AM · Remote"},{day:"22",mon:"Jul",title:"Recording · Daniel Osei",sub:"2:00 PM · Remote"}] },
+  "HST-10": { type:"notifs", items:[{icon:"file",text:"New application from Maya Rodriguez",time:"5m"},{icon:"check",text:"Daniel Osei accepted your invitation",time:"3h"},{icon:"clock",text:"Membership renews in 7 days",time:"1d"}] },
+
+  "ADM-01": { type:"stats", items:[{value:"4,812",label:"Total users"},{value:"1,240",label:"Hosts"},{value:"3,572",label:"Guests"},{value:"$18.4k",label:"MRR"}] },
+  "ADM-02": { type:"list", items:[{title:"Maya Rodriguez",sub:"Guest · maya@mail.co",status:"Active",tone:"green",actions:["Edit","Suspend"]},{title:"The Growth Mindset Show",sub:"Host · hello@growthmindset.fm",status:"Active",tone:"green"}] },
+  "ADM-03": { type:"form", fields:[{label:"Plan name",value:"Pro membership"},{label:"Price",value:"$29"},{label:"Billing period",type:"select",value:"Monthly"},{label:"Status",type:"select",value:"Active"}], cta:"Save plan" },
+  "ADM-04": { type:"list", items:[{title:"Guest expert on decision-making",sub:"The Growth Mindset Show",status:"Published",tone:"green",actions:["Edit","Archive"]},{title:"Weekly founder feature",sub:"Founder Stories",status:"Draft",tone:"gray"}] },
+  "ADM-05": { type:"form", fields:[{label:"Page",type:"select",value:"How It Works"},{label:"Section",type:"select",value:"Hero heading"},{label:"Content",type:"textarea",value:"Find the right podcast guests, or the right shows to appear on."}], cta:"Save content" },
+  "ADM-06": { type:"form", fields:[{label:"Title",value:"New feature: saved searches"},{label:"Message",type:"textarea",value:"You can now save searches and get alerts when new matches appear."},{label:"Schedule",type:"select",value:"Send now"}], cta:"Send notification" },
+  "ADM-07": { type:"report", bars:[{label:"New users",value:82,val:"1,204"},{label:"Memberships",value:64,val:"312"},{label:"Opportunities",value:48,val:"540"},{label:"Messages",value:90,val:"8.9k"}] },
+};
+
+function svgIcon(name, size){
+  const s = size || 15;
+  const paths = {
+    search:'<circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35 -4.35"/>',
+    send:'<path d="M10 14l11 -11"/><path d="M21 3l-6.5 18a.55 .55 0 0 1 -1 0l-3.5 -7l-7 -3.5a.55 .55 0 0 1 0 -1z"/>',
+    sparkles:'<path d="M12 3l1.9 5.8a2 2 0 0 0 1.3 1.3l5.8 1.9l-5.8 1.9a2 2 0 0 0 -1.3 1.3l-1.9 5.8l-1.9 -5.8a2 2 0 0 0 -1.3 -1.3l-5.8 -1.9l5.8 -1.9a2 2 0 0 0 1.3 -1.3z"/>',
+    mail:'<path d="M3 7a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v10a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2z"/><path d="M3 7l9 6l9 -6"/>',
+    check:'<path d="M5 12l5 5l10 -10"/>',
+    file:'<path d="M14 3v4a1 1 0 0 0 1 1h4"/><path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z"/>',
+    clock:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/>'
+  };
+  return '<svg viewBox="0 0 24 24" width="'+s+'" height="'+s+'" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">'+(paths[name]||'')+'</svg>';
+}
+
+function renderPreview(id, tint, ink){
+  const p = PREVIEWS[id]; if(!p) return null;
+  const box = el("div","pv"); const T = p.type;
+  if(T==="stats"){
+    const g=el("div","pv-stats");
+    p.items.forEach(s=>{ const c=el("div","pv-stat"); c.appendChild(el("div","n",s.value)); c.appendChild(el("div","l",s.label)); g.appendChild(c); });
+    box.appendChild(g);
+  } else if(T==="form"){
+    p.fields.forEach(fl=>{
+      const fd=el("div","pv-field"); fd.appendChild(el("label","pv-label2",fl.label));
+      let inp;
+      if(fl.type==="textarea"){ inp=el("div","pv-input pv-textarea",fl.value||""); }
+      else if(fl.type==="select"){ inp=el("div","pv-input pv-select"); inp.innerHTML='<span>'+(fl.value||"")+'</span><span class="pv-caret">&#9662;</span>'; }
+      else { inp=el("div","pv-input",fl.value||fl.placeholder||""); }
+      fd.appendChild(inp); box.appendChild(fd);
+    });
+    if(p.cta){ const b=el("div","pv-cta",p.cta); b.style.background=tint; b.style.color=ink; box.appendChild(b); }
+  } else if(T==="list"){
+    p.items.forEach(it=>{
+      const r=el("div","pv-row"); const m=el("div","pv-row-main");
+      m.appendChild(el("div","pv-row-t",it.title)); if(it.sub) m.appendChild(el("div","pv-row-s",it.sub));
+      r.appendChild(m); if(it.status) r.appendChild(el("span","st st-"+it.tone,it.status));
+      box.appendChild(r);
+      if(it.actions){ const a=el("div","pv-actions"); it.actions.forEach(x=>a.appendChild(el("span","pv-mini",x))); box.appendChild(a); }
+    });
+  } else if(T==="cards"){
+    if(p.search){ const s=el("div","pv-search"); s.innerHTML=svgIcon("search")+"<span>"+p.search+"</span>"; box.appendChild(s); }
+    p.items.forEach(it=>{ const c=el("div","pv-card"); const l=el("div","pv-row-main"); l.appendChild(el("div","pv-row-t",it.title)); if(it.sub) l.appendChild(el("div","pv-row-s",it.sub)); c.appendChild(l); if(it.match) c.appendChild(el("span","pv-match",it.match+"% match")); box.appendChild(c); });
+  } else if(T==="chat"){
+    const c=el("div","pv-chat");
+    p.messages.forEach(mm=>{ const b=el("div","bub "+(mm.from==="me"?"me":"them"),mm.text); if(mm.from==="me"){ b.style.background=tint; b.style.color=ink; } c.appendChild(b); });
+    box.appendChild(c);
+    const ir=el("div","pv-chatinput"); ir.appendChild(el("div","pv-input ph","Write a message…")); const sd=el("div","pv-send"); sd.innerHTML=svgIcon("send"); sd.style.background=tint; sd.style.color=ink; ir.appendChild(sd); box.appendChild(ir);
+  } else if(T==="agenda"){
+    p.items.forEach(it=>{ const r=el("div","pv-ag"); const d=el("div","pv-ag-date"); d.appendChild(el("div","pv-ag-day",it.day)); d.appendChild(el("div","pv-ag-mon",it.mon)); r.appendChild(d); const m=el("div","pv-row-main"); m.appendChild(el("div","pv-row-t",it.title)); if(it.sub) m.appendChild(el("div","pv-row-s",it.sub)); r.appendChild(m); box.appendChild(r); });
+  } else if(T==="notifs"){
+    p.items.forEach(it=>{ const r=el("div","pv-notif"); const ic=el("span","pv-notif-ic"); ic.innerHTML=svgIcon(it.icon); ic.style.background=tint; ic.style.color=ink; r.appendChild(ic); r.appendChild(el("div","pv-notif-m",it.text)); r.appendChild(el("span","pv-notif-t",it.time)); box.appendChild(r); });
+  } else if(T==="prefs"){
+    const ch=el("div","pv-chips"); p.chips.forEach(c=>{ const x=el("span","pv-chip",c.label); if(c.on){ x.style.background=tint; x.style.color=ink; x.style.borderColor="transparent"; } ch.appendChild(x); }); box.appendChild(ch);
+    if(p.result){ const r=el("div","pv-result"); r.innerHTML=svgIcon("sparkles")+"<span>"+p.result+"</span>"; box.appendChild(r); }
+  } else if(T==="plan"){
+    const c=el("div","pv-plan"); const top=el("div","pv-plan-top"); top.appendChild(el("div","pv-plan-name",p.name)); top.appendChild(el("span","st st-green",p.status)); c.appendChild(top); c.appendChild(el("div","pv-plan-price",p.price)); c.appendChild(el("div","pv-row-s",p.expiry)); const a=el("div","pv-actions"); (p.actions||[]).forEach(x=>a.appendChild(el("span","pv-mini",x))); c.appendChild(a); box.appendChild(c);
+  } else if(T==="report"){
+    p.bars.forEach(bb=>{ const r=el("div","pv-bar"); r.appendChild(el("div","pv-bar-l",bb.label)); const t=el("div","pv-bar-track"); const f=el("div","pv-bar-fill"); f.style.width=bb.value+"%"; f.style.background=tint; t.appendChild(f); r.appendChild(t); r.appendChild(el("div","pv-bar-v",bb.val)); box.appendChild(r); });
+  }
+  return box;
+}
+
+const board = document.getElementById("board");
+
+Object.values(DATA).forEach(role => {
+  const col = el("section","col");
+  const tint=`var(--${role.accent}-tint)`, ink=`var(--${role.accent}-ink)`, accent=`var(--${role.accent})`;
+  col.style.borderTopColor = accent;
+  const head = el("div","col-head");
+  const badge = el("div","badge"); badge.style.background=tint; badge.style.color=ink; badge.textContent=role.title.charAt(0);
+  const tw = el("div"); tw.appendChild(el("div","col-title",role.title)); tw.appendChild(el("div","col-access",role.access));
+  head.append(badge, tw, el("div","col-count",role.features.length+" features"));
+  col.appendChild(head);
+
+  role.features.forEach(f => {
+    const feat = el("div","feat");
+    const btn = el("button","feat-btn"); btn.setAttribute("aria-expanded","false");
+    const fr = el("span","fr"); fr.textContent="FR-"+f.id; fr.style.background=tint; fr.style.color=ink;
+    const name = el("span","feat-name"); name.textContent=f.name;
+    if(f.shared){ name.appendChild(el("span","shared-tag","shared")); }
+    const chev = el("span","chev"); chev.innerHTML='<svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 4l4 4-4 4"/></svg>';
+    btn.append(fr,name,chev);
+
+    const detail = el("div","detail"), inner = el("div","detail-inner"), body = el("div","detail-body");
+    body.appendChild(el("p","detail-desc",f.desc));
+    const pv = renderPreview(f.id, tint, ink);
+    if(pv){ body.appendChild(el("p","includes-label","Example")); body.appendChild(pv); }
+    body.appendChild(el("p","includes-label","Includes"));
+    const ul = el("ul","includes"); f.includes.forEach(i=>ul.appendChild(el("li",null,i))); body.appendChild(ul);
+    const meta = el("div","meta"); meta.appendChild(el("span","pill",role.access));
+    if(f.shared) meta.appendChild(el("span","pill","Host + Guest"));
+    if(f.phase){ const p=el("span","pill",f.phase); p.style.background=tint; p.style.color=ink; p.style.borderColor="transparent"; meta.appendChild(p); }
+    body.appendChild(meta);
+    inner.appendChild(body); detail.appendChild(inner);
+
+    btn.addEventListener("click", ()=>{ const o=feat.classList.toggle("open"); btn.setAttribute("aria-expanded",o?"true":"false"); syncToggle(); });
+    feat.append(btn,detail); col.appendChild(feat);
+  });
+  board.appendChild(col);
+});
+
+const toggleBtn = document.getElementById("toggleAll");
+function syncToggle(){ const f=document.querySelectorAll(".feat"); const all=[...f].every(x=>x.classList.contains("open")); toggleBtn.textContent=all?"Collapse all":"Expand all"; }
+toggleBtn.addEventListener("click", ()=>{
+  const f=document.querySelectorAll(".feat"); const all=[...f].every(x=>x.classList.contains("open"));
+  f.forEach(x=>{ x.classList.toggle("open",!all); x.querySelector(".feat-btn").setAttribute("aria-expanded",(!all).toString()); });
+  syncToggle();
+});
+
+document.querySelectorAll(".tab").forEach(tab => {
+  tab.addEventListener("click", () => {
+    document.querySelectorAll(".tab").forEach(t=>{ t.classList.remove("active"); t.setAttribute("aria-selected","false"); });
+    document.querySelectorAll(".panel").forEach(p=>p.classList.remove("active"));
+    tab.classList.add("active"); tab.setAttribute("aria-selected","true");
+    document.getElementById(tab.dataset.target).classList.add("active");
+  });
+});
+</script>
+</body>
+</html>
