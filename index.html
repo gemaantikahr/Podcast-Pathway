@@ -238,17 +238,17 @@
   <!-- TIMELINE -->
   <section class="panel" id="panel-timeline" role="tabpanel" aria-labelledby="tab-timeline">
     <div class="sec-head">
-      <h2>6-week timeline — web MVP</h2>
-      <p>Paced to be genuinely achievable in six weeks with roughly four developers plus dedicated QA. The two riskiest pieces are de-risked deliberately: Stripe billing starts early and runs as a parallel track, and QA runs continuously rather than only at the end. Scope is the web app across all three portals; native mobile and Phase 2 items are a fast-follow, not in-window.</p>
+      <h2>6-week timeline — full scope</h2>
+      <p>Everything in the Developer Guideline ships in six weeks: web across all three portals plus the native Kotlin mobile apps. This only works with two parallel squads — a web/backend team and a dedicated mobile team that starts consuming APIs from Week 2 — roughly 7–8 developers plus dedicated QA. The only exclusions are the two items the document itself marks "Future Phase" (calendar sync, biometric login). App-store approval timing sits with Apple/Google, so mobile "done" means submitted in Week 6.</p>
     </div>
     <div class="scope">
-      <span class="tag">Web MVP · all portals</span>
+      <span class="tag">Web · all three portals</span>
+      <span class="tag">Native mobile apps (Kotlin)</span>
       <span class="tag">Stripe memberships</span>
       <span class="tag">Rule-based matching</span>
-      <span class="tag out">Native mobile apps</span>
-      <span class="tag out">Full training LMS</span>
-      <span class="tag out">Calendar sync</span>
-      <span class="tag out">Booking fees · featured listings</span>
+      <span class="tag">Push notifications</span>
+      <span class="tag out">Calendar sync (doc: Future Phase)</span>
+      <span class="tag out">Biometric login (doc: Future Phase)</span>
     </div>
 
     <div class="tl-board">
@@ -279,10 +279,12 @@
         <div class="row"><div class="rlabel">Guest directory &amp; invitations</div><div class="bar b-build" style="grid-column:5/6;">1 wk</div></div>
         <div class="row"><div class="rlabel">Membership &amp; payments (Stripe)</div><div class="bar b-integ" style="grid-column:3/6;">3 wks · early start</div></div>
         <div class="row"><div class="rlabel">Matching engine (rule-based)</div><div class="bar b-integ" style="grid-column:5/7;">2 wks</div></div>
-        <div class="row"><div class="rlabel">Messaging &amp; notifications</div><div class="bar b-build" style="grid-column:6/7;">1 wk</div></div>
-        <div class="row"><div class="rlabel">Calendar (scheduling)</div><div class="bar b-build" style="grid-column:6/7;">1 wk</div></div>
+        <div class="row"><div class="rlabel">Messaging, notifications &amp; calendar</div><div class="bar b-build" style="grid-column:6/7;">1 wk</div></div>
         <div class="row"><div class="rlabel">Admin portal (parallel track)</div><div class="bar b-build" style="grid-column:5/7;">2 wks</div></div>
-        <div class="row"><div class="rlabel">QA: browser, performance, security, SEO</div><div class="bar b-qa" style="grid-column:5/8;">continuous</div></div>
+        <div class="row"><div class="rlabel">Mobile squad: app foundations &amp; API layer</div><div class="bar b-integ" style="grid-column:3/5;">2 wks</div></div>
+        <div class="row"><div class="rlabel">Mobile squad: Guest &amp; Host apps</div><div class="bar b-integ" style="grid-column:5/8;">3 wks</div></div>
+        <div class="row"><div class="rlabel">Mobile: push notifications &amp; store submission</div><div class="bar b-integ" style="grid-column:7/8;">1 wk</div></div>
+        <div class="row"><div class="rlabel">QA web + mobile: browser, device, security, SEO</div><div class="bar b-qa" style="grid-column:5/8;">continuous</div></div>
         <div class="row"><div class="rlabel">UAT, fixes &amp; launch</div><div class="bar b-qa" style="grid-column:7/8;">1 wk</div></div>
       </div>
       <div class="tl-legend">
@@ -296,14 +298,15 @@
     </div>
 
     <div class="miles">
-      <div class="mile"><div class="id">M1 · end of Week 2</div><div class="wk">Foundations ready</div><p>Auth, roles, public site, and CMS on staging. Stripe integration already underway.</p></div>
-      <div class="mile"><div class="id">M2 · end of Week 4</div><div class="wk">Marketplace + payments</div><p>Both paths — opportunities/applications and directory/invitations — live, and Stripe memberships working.</p></div>
-      <div class="mile"><div class="id">M3 · end of Week 5</div><div class="wk">Feature freeze</div><p>Matching, messaging, notifications, calendar, and admin portal done. Fixes only from here.</p></div>
-      <div class="mile"><div class="id">M4 · end of Week 6</div><div class="wk">Launch</div><p>Continuous QA wraps with security scan, SEO audit, UAT, and bug-fix.</p></div>
+      <div class="mile"><div class="id">M1 · end of Week 2</div><div class="wk">APIs stable</div><p>Auth, roles, public site, and core APIs on staging — the contract the mobile squad builds against.</p></div>
+      <div class="mile"><div class="id">M2 · end of Week 4</div><div class="wk">Marketplace + payments</div><p>Web marketplace and Stripe working; mobile app shells authenticated and consuming live APIs.</p></div>
+      <div class="mile"><div class="id">M3 · end of Week 5</div><div class="wk">Feature freeze</div><p>Web feature-complete (matching, messaging, calendar, admin); mobile apps in final feature build.</p></div>
+      <div class="mile"><div class="id">M4 · end of Week 6</div><div class="wk">Launch + submit</div><p>Web launches after UAT, security scan, and SEO audit; mobile apps submitted to both stores.</p></div>
     </div>
     <div class="tl-foot">
-      <span>Realistic with ~4 developers in parallel + dedicated QA</span><span>·</span>
-      <span>If it slips, cut in order: calendar → match % → deeper admin reports</span>
+      <span>Requires two squads: ~4–5 web/backend + 2–3 mobile (Kotlin) + dedicated QA</span><span>·</span>
+      <span>App-store review timing is external — apps submitted Week 6, approval follows</span><span>·</span>
+      <span>Excluded only: doc-marked Future Phase items (calendar sync, biometric)</span>
     </div>
   </section>
 </div>
